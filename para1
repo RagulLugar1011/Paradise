@@ -1,0 +1,115 @@
+"use client";
+
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useRouter } from "next/router";
+import dynamic from "next/dynamic";
+
+const Button = dynamic(() => import("../components/ui/button"), { ssr: false });
+const Card = dynamic(() => import("../components/ui/card").then(mod => mod.Card), { ssr: false });
+const CardContent = dynamic(() => import("../components/ui/card").then(mod => mod.CardContent), { ssr: false });
+
+const moviesData = [
+  {
+    id: 1,
+    name: "Inception",
+    image: "/images/inception.jpg",
+    language: "English",
+    rating: "R",
+    showtimes: [
+      { time: "10:00 AM", availableSeats: 30 },
+      { time: "2:00 PM", availableSeats: 20 },
+    ],
+  },
+  {
+    id: 2,
+    name: "RRR",
+    image: "/images/rrr.jpg",
+    language: "Telugu",
+    rating: "R",
+    showtimes: [
+      { time: "11:00 AM", availableSeats: 25 },
+      { time: "5:00 PM", availableSeats: 10 },
+    ],
+  },
+  {
+    id: 3,
+    name: "Interstellar",
+    image: "/images/interstellar.jpg",
+    language: "English",
+    rating: "R",
+    showtimes: [
+      { time: "3:00 PM", availableSeats: 15 },
+      { time: "7:00 PM", availableSeats: 5 },
+    ],
+  },
+];
+
+const MovieBooking = () => {
+  const [selectedShow, setSelectedShow] = useState({ movieId: null, showIndex: null });
+  const router = useRouter();
+
+  const bookTicket = (movieId, showIndex) => {
+    setSelectedShow({ movieId, showIndex });
+  };
+
+  const proceedToPayment = () => {
+    router.push("/payment");
+  };
+
+  const selectedMovie = selectedShow.movieId !== null ? moviesData.find(movie => movie.id === selectedShow.movieId) : null;
+  const availableSeats = selectedMovie ? selectedMovie.showtimes[selectedShow.showIndex].availableSeats : 0;
+
+  return (
+    <div className="p-6 bg-yellow-400 min-h-screen">
+      <div className="flex justify-center items-center mb-6">
+        <img src="/images/logo.png" alt="ParadiseGo Logo" className="mr-3" />
+        <h1 className="text-3xl font-bold">ParadiseGo Movie Booking</h1>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {moviesData.map((movie) => (
+          <motion.div key={movie.id} whileHover={{ scale: 1.05 }}>
+            <Card className="shadow-lg rounded-2xl p-4">
+              <CardContent>
+                <img src={movie.image} alt={movie.name} className="w-full h-40 object-cover rounded-lg mb-3" />
+                <h2 className="text-xl font-bold">{movie.name}</h2>
+                <p className="text-sm text-gray-600">Language: {movie.language}</p>
+                <p className="text-sm text-gray-600">Rating: {movie.rating}</p>
+                <div className="mt-4">
+                  {movie.showtimes.map((show, index) => (
+                    <div key={index} className="flex justify-between items-center border-b py-2">
+                      <span>{show.time}</span>
+                      <span className="text-gray-500">Seats: {show.availableSeats}</span>
+                      <Button disabled={show.availableSeats === 0} onClick={() => bookTicket(movie.id, index)}>
+                        Book
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+      {selectedShow.movieId !== null && selectedMovie && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 p-4 border rounded-lg shadow-lg bg-white">
+          <h2 className="text-xl font-bold mb-4">Select Your Seat</h2>
+          <div className="grid grid-cols-5 gap-2">
+            {[...Array(availableSeats)].map((_, index) => (
+              <motion.div
+                key={index}
+                className={w-10 h-10 rounded-md flex items-center justify-center cursor-pointer transition-all ${index % 2 === 0 ? "bg-gray-400" : "bg-green-500"}}
+                whileHover={{ scale: 1.1 }}
+                onClick={proceedToPayment}
+              >
+                {index + 1}
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+export default MovieBooking;             i need this code to using html frontend and backend to preview 
